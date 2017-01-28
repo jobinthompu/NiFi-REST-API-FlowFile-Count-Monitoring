@@ -93,7 +93,7 @@ Message				:	Queue Size Exceeded Threshold for ${CONNECTION_UUID}
 
 2) Now lets start the flow and you should receive mail alert from NiFi stating the count exceeded Threshold set which is 20 in our case.
 
-	My sample alret looks like below:
+   My sample alret looks like below:
 
 ![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/Alert_email.jpg)
 

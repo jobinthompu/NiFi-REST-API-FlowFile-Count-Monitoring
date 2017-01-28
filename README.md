@@ -15,8 +15,10 @@ Recently I was asked how to monitor and alert flowfile count in a connection que
 
 2) You Already have a connection with data queued in it(say more than 20 flowfiles). Else you can create one like below:
 
-![alt tag](https://github.com/jobinthompu/NiFi-Storm-Integration/blob/master/resources/images/OriginalFlow.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/OriginalFlow.jpg)
 
-3) Make a note of the Connection name and uuid:
+3) Make a note of the Connection name and uuid to be monitored:
 
-![alt tag](https://github.com/jobinthompu/NiFi-Storm-Integration/blob/master/resources/images/Original_Flow_Settings.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/Original_Flow_Settings.jpg)
+
+## Creating a Flow to Monitor Connection Queue.

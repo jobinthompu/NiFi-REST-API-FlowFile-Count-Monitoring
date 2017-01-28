@@ -21,7 +21,7 @@ Recently I was asked how to monitor and alert flowfile count in a connection que
 
 ![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/Original_Flow_Settings.jpg)
 
-## Creating a Flow to Monitor Connection Queue.
+## Creating a Flow to Monitor Connection Queue Count.
 
 1) Drop a GenerateFlowFile processor to the canvas and make "Run Schedule" 60 sec so we dont execute the flow to often.
 
@@ -50,3 +50,62 @@ QUEUE_NAME : $.status.name
 QUEUE_SIZE : $.status.aggregateSnapshot.flowFilesQueued
 ```
 ![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/EvaluateJsonPath.jpg)
+
+5) Drop a RouteOnAttribute processor to the canvas with below configs, connect EvaluateJsonPath's matched relation to it and auto terminate its unmatched relation.
+
+```
+Queue_Size_Exceeded : ${QUEUE_SIZE:gt(${COUNT})}
+```
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/RouteOnAttribute.jpg)
+
+6) Lastly add a PutEmail processor, connect RouteOnAttribute's matched relation to it and auto terminate all its relations. below are my properties set, you have to update it with your SMTP details:
+
+```
+SMTP Hostname		:	west.xxxx.yourServer.net
+SMTP Port			:	587
+SMTP Username		:	jgeorge@hortonworks.com
+SMTP Password		: 	Its_myPassw0rd_updateY0urs
+SMTP TLS			:	true
+From				:	jgeorge@hortonworks.com
+To					:	jgeorge@hortonworks.com
+Subject				:	Queue Size Exceeded Threshold
+```
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/PutEmail.jpg)
+
+and message content should look something like below to grab all the values:
+
+```
+Message				:	Queue Size Exceeded Threshold for ${CONNECTION_UUID}
+
+						Connection Name				:	${QUEUE_NAME}
+						Threshold Set				:	${COUNT}
+						Current FlowFile Count 		:	${QUEUE_SIZE}
+```
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/message_content.jpg)
+
+7) Now the flow is completed and li should look similar to below:
+
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/FinalFlow.jpg)
+
+## Staring the flow and testing it
+
+1) Lets make sure at least 21 flow files are pending in the connection named 'DataToFileSystem' which was created in the Prerequisites
+
+2) Now lets start the flow and you should receive mail alert from NiFi stating the count exceeded Threshold set which is 20 in our case.
+
+	My sample alret looks like below:
+
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/Alert_email.jpg)
+
+3) This concludes the tutorial for monitoring your connection queue count with NiFi.
+
+
+## References
+[NiFi REST API](https://nifi.apache.org/docs/nifi-docs/rest-api/index.html)
+[NiFI Expression Language](https://nifi.apache.org/docs/nifi-docs/html/expression-language-guide.html)
+
+Thanks,
+
+Jobin George
+
+

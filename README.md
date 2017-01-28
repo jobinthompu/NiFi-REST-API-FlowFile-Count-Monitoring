@@ -99,6 +99,7 @@ Message				:	Queue Size Exceeded Threshold for ${CONNECTION_UUID}
 
 3) This concludes the tutorial for monitoring your connection queue count with NiFi.
 
+4) Too lazy to create the flow???.. Download my template [here](https://nifi.apache.org/docs/nifi-docs/rest-api/index.html)
 
 ## References
 [NiFi REST API](https://nifi.apache.org/docs/nifi-docs/rest-api/index.html)

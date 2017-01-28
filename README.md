@@ -15,11 +15,11 @@ Recently I was asked how to monitor and alert flowfile count in a connection que
 
 2) You Already have a connection with data queued in it(say more than 20 flowfiles). Else you can create one like below:
 
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/OriginalFlow.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/OriginalFlow.jpg)
 
 3) Make a note of the Connection name and uuid to be monitored:
 
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/Original_Flow_Settings.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/Original_Flow_Settings.jpg)
 
 ## Creating a Flow to Monitor Connection Queue Count.
 
@@ -33,7 +33,7 @@ COUNT			: 20
 NIFI_HOST		: localhost
 NIFI_PORT		: 8080
 ```
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/UpdateAttribute.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/UpdateAttribute.jpg)
 
 3) Drop a InvokeHTTP processor to the canvas, connect UpdateAttribute's success relation to it, auto terminate all other relations and update its 2 properties as below:
 
@@ -41,7 +41,7 @@ NIFI_PORT		: 8080
 HTTP Method	: GET
 Remote URL	: http://${NIFI_HOST}:${NIFI_PORT}/nifi-api/connections/${CONNECTION_UUID}
 ```
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/InvokeHTTP.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/InvokeHTTP.jpg)
 
 4) Drop an EvaluateJsonPath processor to extract values from json with below properties, connect Response relation of InvokeHTTP to it, and auto terminate its failure and unmatched relations.
 
@@ -49,14 +49,14 @@ Remote URL	: http://${NIFI_HOST}:${NIFI_PORT}/nifi-api/connections/${CONNECTION_
 QUEUE_NAME : $.status.name
 QUEUE_SIZE : $.status.aggregateSnapshot.flowFilesQueued
 ```
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/EvaluateJsonPath.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/EvaluateJsonPath.jpg)
 
 5) Drop a RouteOnAttribute processor to the canvas with below configs, connect EvaluateJsonPath's matched relation to it and auto terminate its unmatched relation.
 
 ```
 Queue_Size_Exceeded : ${QUEUE_SIZE:gt(${COUNT})}
 ```
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/RouteOnAttribute.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/RouteOnAttribute.jpg)
 
 6) Lastly add a PutEmail processor, connect RouteOnAttribute's matched relation to it and auto terminate all its relations. below are my properties set, you have to update it with your SMTP details:
 
@@ -70,7 +70,7 @@ From				:	jgeorge@hortonworks.com
 To					:	jgeorge@hortonworks.com
 Subject				:	Queue Size Exceeded Threshold
 ```
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/PutEmail.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/PutEmail.jpg)
 
 and message content should look something like below to grab all the values:
 
@@ -81,11 +81,11 @@ Message				:	Queue Size Exceeded Threshold for ${CONNECTION_UUID}
 						Threshold Set				:	${COUNT}
 						Current FlowFile Count 		:	${QUEUE_SIZE}
 ```
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/message_content.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/message_content.jpg)
 
 7) Now the flow is completed and li should look similar to below:
 
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/FinalFlow.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/FinalFlow.jpg)
 
 ## Staring the flow and testing it
 
@@ -95,14 +95,15 @@ Message				:	Queue Size Exceeded Threshold for ${CONNECTION_UUID}
 
    My sample alret looks like below:
 
-![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/images/Alert_email.jpg)
+![alt tag](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/images/Alert_email.jpg)
 
 3) This concludes the tutorial for monitoring your connection queue count with NiFi.
 
-4) Too lazy to create the flow???.. Download my template [here](https://nifi.apache.org/docs/nifi-docs/rest-api/index.html)
+4) Too lazy to create the flow???.. Download my template [here](https://github.com/jobinthompu/NiFi-REST-API-FlowFile-Count-Monitoring/blob/master/resources/Monitor_Connection_Queue_Count.xml)
 
 ## References
 [NiFi REST API](https://nifi.apache.org/docs/nifi-docs/rest-api/index.html)
+
 [NiFI Expression Language](https://nifi.apache.org/docs/nifi-docs/html/expression-language-guide.html)
 
 Thanks,
